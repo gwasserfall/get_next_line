@@ -5,7 +5,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
-#define BUFF_SIZE 999
+#define BUFF_SIZE 1
 
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -141,6 +141,12 @@ int get_next_line(const int fd, char **line)
     /*
         Return here when buffer has no more characters
     */
+    if (surrogate)
+    {
+        *line = strdup(surrogate);
+        surrogate = NULL;
+        return (1);
+    }
     return (0);
 }
 
