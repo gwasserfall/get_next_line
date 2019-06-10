@@ -5,7 +5,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 
-#define BUFF_SIZE 1
+#define BUFF_SIZE 10
 
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
