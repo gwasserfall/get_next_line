@@ -61,9 +61,14 @@ int	get_next_line(int fd, char **line)
 	static char **fd_array;
     int result;
 
-	if (!fd_array)
+	if (fd < 0 || !line || read(fd, NULL, 0))
+        return -1;
+    if (!fd_array)
 		fd_array = ft_strarray(FOPEN_MAX);
-	if (!fd_array[fd])
+	// if (fd_array[fd])
+    //     fd_array[fd][0] = 0;
+    
+    if (!fd_array[fd])
 	{
 		fd_array[fd] = malloc(sizeof(char));
 		bzero(fd_array[fd], 1);
@@ -77,7 +82,8 @@ int	get_next_line(int fd, char **line)
             fd_array[fd] = grab_line(&fd_array[fd], line, '\0');    
         return 1;
     } 
-    else if (result == 0)
+    //else if (result == 0 && )
+    else if ((result == 0 && fd_array[fd] == NULL) || fd_array[fd][0] == '\0')
     {
         free(fd_array[fd]);
         return 0;

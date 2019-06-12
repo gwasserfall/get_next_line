@@ -13,7 +13,7 @@
             "type": "lldb-mi",
             "request": "launch",
             "name": "Launch Program",
-            "target": "${workspaceFolder}/gnl.out",
+            "target": "${workspaceFolder}/test_gnl",
             "cwd": "${workspaceRoot}",
             "valuesFormatting": "parseText"
         },
@@ -21,7 +21,7 @@
             "name": "(lldb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/gnl.out",
+            "program": "${workspaceFolder}/test_gnl",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
