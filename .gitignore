@@ -8,6 +8,7 @@
 *.elf
 
 .vscode/
+libft/
 
 # Linker output
 *.ilk

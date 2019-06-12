@@ -10,7 +10,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "command": "gcc -g gnl2.c -o gnl.out -O0"
+            "command": "make test"
         }
     ]
 }

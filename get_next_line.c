@@ -1,172 +1,88 @@
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <stdlib.h>
+#include "get_next_line.h"
 
-#define BUFF_SIZE 10
-
-#define KNRM  "\x1B[0m"
-#define KRED  "\x1B[31m"
-#define GRN  "\x1B[32m"
-#define KYEL  "\x1B[33m"
-#define KBLU  "\x1B[34m"
-#define KMAG  "\x1B[35m"
-#define KCYN  "\x1B[36m"
-#define WHT  "\x1B[37m"
-
-#define log(x) printf("%s", x);
-
-
-char  *ft_realloc(char *string, int *total_size, int increase)
+char *strjoin(const char* s1, const char* s2)
 {
-    char *tmp;
+    char* result = malloc(strlen(s1) + strlen(s2) + 1);
+
+    if (result)
+    {
+        strcpy(result, s1);
+        strcat(result, s2);
+    }
     
-    //printf("ft_realloc(string: %s, total_size: %d, increase: %d)\n", string, *total_size, increase);
-    tmp = (char *)malloc(*total_size + increase);
-    memset(tmp, '\0', *total_size + increase);
-    memcpy(tmp, string, *total_size);
-    //*total_size += increase;
-    //free(string);
-    return(tmp);
+    return result;
 }
 
-int get_next_line(const int fd, char **line)
+char    **ft_strarray(size_t size)
+{
+    char **array;
+
+    if (!(array = (char **)malloc((size + 1) * sizeof(char *))))
+            return (NULL);
+    array[size] = NULL;
+    return (array);
+}
+
+char *grab_line(char **string, char **output, char delim)
+{
+    int i;
+    char *remaining;
+    i = 0;
+    while (string[0][i] != delim)
+        i++;
+    string[0][i] = 0;
+    *output = strdup(string[0]);
+    remaining = strdup(&string[0][i + 1]);
+    free(*string);
+    return (remaining);
+}
+
+int read_till_line(int fd, char ***fd_array)
 {
     int ret;
-    char buff[BUFF_SIZE];
-    int index = 0;
-    int iline;
-    int remainder;
-    static char *surrogate;
-    char *cur;
-    iline = 0;
-    if (surrogate)
-    {
-        /*
-            If there was some left over on the buffer read from there before file buffer
-        */
-        //iline = strlen(surrogate);
-        cur = surrogate;
-
-        while (surrogate[iline])
+	char buffer[BUFF_SIZE + 2];
+    while ((ret = read(fd, buffer, BUFF_SIZE)))
+	{
+		buffer[ret] = 0;
+        if (ret < BUFF_SIZE)
         {
-            if (surrogate[iline] == '\n')
-            {
-                free(*line);
-                *line = malloc(iline + 1);
-                memcpy(*line, surrogate, iline);
-                line[0][iline] = '\0';
-
-                // Exclude the bloody newline char
-                surrogate += iline + 1;
-         
-                return (1);
-            }
-            iline++;
+            buffer[ret] = '\n';
+            buffer[ret + 1] = 0;
         }
+        (*fd_array)[fd] = strjoin((*fd_array)[fd], buffer);
+        if (strstr((*fd_array)[fd], "\n"))
+            break ;
     }
-
-    while ((ret = read(fd, buff, BUFF_SIZE)))
-    {
-        /*
-            Add number of bytes read from file onto surrogate for next iter
-        */
-        surrogate = ft_realloc(surrogate, &iline, ret);
-        
-        
-        /*
-            Read from the beginning of buffer 
-        */
-        index = 0;
-
-        while (index < ret)
-        {   
-
-            /*
-                First check for a newline character '\n'
-            */
-            if (buff[index] == '\n') 
-            {
-                
-                /*
-                   :TODO What happens if the first char is newline? 
-
-                    Add a null terminator to the end of whats been read already
-
-                */
-                surrogate[iline] = '\0';
-              
-              
-                /*
-                    Copy the line back to caller
-                */
-                *line = strdup(surrogate);
-                
-                index++;
-                /*
-                    If there are still chars on the buff we need to store them somewhere for the next run
-                */
-                if (index <= ret)
-                {
-
-                    /*
-                        First free the surrogate
-                    */
-                    free(surrogate);
-
-                    remainder = ret - index;
-                    surrogate = malloc(ret - index);
-
-                    memset(surrogate, 'A', remainder);
-
-                    memcpy(surrogate, &buff[index], remainder);
-
-                    remainder = 0;
-                } 
-                else 
-                {
-                    free(surrogate);
-                    surrogate = NULL;
-                }
-                return ((ret > 0));
-            }
-            surrogate[iline] = buff[index];
-            iline++;
-            index++;
-        }
-    }
-
-    /*
-        Return here when buffer has no more characters
-    */
-    if (surrogate)
-    {
-        *line = strdup(surrogate);
-        surrogate = NULL;
-        return (1);
-    }
-    return (0);
+    return ret;
 }
 
-int main()
+int	get_next_line(int fd, char **line)
 {
-    char *line;
-    int fd;
+	static char **fd_array;
+    int result;
 
-    int counter = 0;
-
-    fd = open("test.txt", O_RDONLY);
-
-    printf(KBLU "Opening file : %d\n" WHT, fd);
-
-    while ((get_next_line(fd, &line) == 1))
-    {
-        counter++;
-        printf( "%d)" GRN "%s\n" WHT, counter, line);
+	if (!fd_array)
+		fd_array = ft_strarray(FOPEN_MAX);
+	if (!fd_array[fd])
+	{
+		fd_array[fd] = malloc(sizeof(char));
+		bzero(fd_array[fd], 1);
     }
-
-    close(fd);
-    return (0);
+    result = read_till_line(fd, &fd_array);
+    if (strlen(fd_array[fd]))
+    {   
+        if (strstr(fd_array[fd], "\n"))
+            fd_array[fd] = grab_line(&fd_array[fd], line, '\n');
+        else
+            fd_array[fd] = grab_line(&fd_array[fd], line, '\0');    
+        return 1;
+    } 
+    else if (result == 0)
+    {
+        free(fd_array[fd]);
+        return 0;
+    }
+    return (1);
 }
+
+
