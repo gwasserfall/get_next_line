@@ -11,5 +11,5 @@
 
 # define BUFF_SIZE 20
 
-int	get_next_line(int fd, char **line);
+int get_next_line(const int fd, char **line);
 #endif
