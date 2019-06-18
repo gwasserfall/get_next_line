@@ -14,14 +14,13 @@ int main()
 	char *line;
 	int i = 0;
 	
+	int fd = open("gnl1_1.txt", O_RDONLY);
+
 	line = NULL;
-	while (i < 100)
+	while (get_next_line(fd, &line) > 0)
 	{
-		//printf("Iteration : %d\n", i);
-		get_next_line(i, &line);
-		i++;
+		printf("%s", line);
 	}
-	get_next_line(10, &line);
 	return 0;
 }
 

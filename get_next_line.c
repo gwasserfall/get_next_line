@@ -3,27 +3,65 @@
 t_list  *ft_get_fdlist(int fd, t_list **alst)
 {
     t_list *head;
+    
     if (!(*alst))
     {
-        *alst = ft_lstnew("", fd);
-        printf("No list exists, creating it : This is the first ever time function was run\n");
+        *alst = ft_lstnew(NULL, 0);
+        (*alst)->content_size = fd;
+        (*alst)->content = (char *)(*alst)->content;
     }
     head = *alst; 
     while (head)
     {
         if (head->content_size == fd)
-        {
-            printf("Found a thing");
-            return head->content;
-            
-        }
+            return head;
         head = head->next;
     }
-    head = ft_lstnew("", fd);
+    head = ft_lstnew(NULL, 0);
+    head->content_size = fd;
     ft_lstadd(alst, head);
-    printf("Making a t_list with %d\n", fd);
     return (head);
 }
+
+int ft_read(t_list **list)
+{
+    int ret;
+    char buf[BUFF_SIZE + 1];
+    char *str;
+
+    str = (char *)(*list)->content ;
+
+    while ((ret = read((*list)->content_size, buf, BUFF_SIZE)))
+    {
+        buf[ret] = 0;
+        if (ret < BUFF_SIZE)
+        {
+            (*list)->content = ft_strjoin(str, buf);
+            return 0;
+        }
+        (*list)->content = ft_strjoin(str, buf);
+    }
+}
+
+
+int ft_get_line(t_list **list, char **line)
+{
+    char *str;
+
+    str = (char *)(*list)->content;
+    if (!str)
+        str = ft_strnew(0);
+
+    while (*str)
+    {
+        if (*str == '\n')
+            printf("NEWLINE\n");
+        str++;
+    }
+    ft_read(list);
+    printf("asdfasdfasdf%s", (char *)(*list)->content);
+}
+
 
 int get_next_line(const int fd, char **line)
 {
@@ -31,6 +69,9 @@ int get_next_line(const int fd, char **line)
     t_list *current;
 
     current = ft_get_fdlist(fd, &list);
+
+    ft_get_line(&current, line);
+
     return 0;
 }
 
