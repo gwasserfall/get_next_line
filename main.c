@@ -17,7 +17,7 @@ int main()
 	int fd = open("gnl1_1.txt", O_RDONLY);
 
 	line = NULL;
-	while (get_next_line(fd, &line) > 0)
+	while ((get_next_line(fd, &line) > 0))
 	{
 		printf("%s", line);
 	}

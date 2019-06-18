@@ -8,7 +8,7 @@ t_list  *ft_get_fdlist(int fd, t_list **alst)
     {
         *alst = ft_lstnew(NULL, 0);
         (*alst)->content_size = fd;
-        (*alst)->content = (char *)(*alst)->content;
+        (*alst)->content = (void *)ft_strnew(0);
     }
     head = *alst; 
     while (head)
@@ -26,40 +26,43 @@ t_list  *ft_get_fdlist(int fd, t_list **alst)
 int ft_read(t_list **list)
 {
     int ret;
+    int fd;
     char buf[BUFF_SIZE + 1];
     char *str;
 
-    str = (char *)(*list)->content ;
+    fd = (*list)->content_size;
+    str = (char *)(*list)->content;
 
-    while ((ret = read((*list)->content_size, buf, BUFF_SIZE)))
-    {
-        buf[ret] = 0;
-        if (ret < BUFF_SIZE)
-        {
-            (*list)->content = ft_strjoin(str, buf);
-            return 0;
-        }
-        (*list)->content = ft_strjoin(str, buf);
-    }
+    ret = read(fd, buf, BUFF_SIZE);
+
+    (*list)->content = ft_strjoin(str, buf);
+
+    return ret;
 }
-
 
 int ft_get_line(t_list **list, char **line)
 {
     char *str;
+    char i;
+
+    i = 0;
 
     str = (char *)(*list)->content;
-    if (!str)
-        str = ft_strnew(0);
-
-    while (*str)
+    printf("String = ");
+    printf("%s\n", str);
+    while (str[i])
     {
-        if (*str == '\n')
-            printf("NEWLINE\n");
-        str++;
+        if (str[i] == '\n') 
+        {
+            printf("FOUND NEW LINE\n");
+            return 1;
+        }
+        i++;
     }
+    *line = ft_strnew(i);
+    memcpy(*line, str, i);
     ft_read(list);
-    printf("asdfasdfasdf%s", (char *)(*list)->content);
+    ft_get_line(list, line);
 }
 
 
@@ -67,12 +70,9 @@ int get_next_line(const int fd, char **line)
 {
     static t_list *list;
     t_list *current;
-
     current = ft_get_fdlist(fd, &list);
-
-    ft_get_line(&current, line);
-
-    return 0;
+    free(*line);
+    return ft_get_line(&current, line);
 }
 
 

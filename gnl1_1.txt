@@ -1,1 +1,13 @@
 1234567
+(*list)->content_size
+(*list)->content_size
+(*list)->content_size
+(*list)->content_size
+(*list)->content_size
+(*list)->content_size
+(*list)->content_size
+(*list)->content_size
+(*list)->content_size
+(*list)->content_size
+(*list)->content_size
+(*list)->content_size
