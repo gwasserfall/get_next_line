@@ -13,7 +13,7 @@ t_list  *ft_get_fdlist(int fd, t_list **alst)
     head = *alst; 
     while (head)
     {
-        if (head->content_size == fd)
+        if ((int)head->content_size == fd)
             return head;
         head = head->next;
     }
@@ -32,37 +32,59 @@ int ft_read(t_list **list)
 
     fd = (*list)->content_size;
     str = (char *)(*list)->content;
-
     ret = read(fd, buf, BUFF_SIZE);
-
+    buf[ret] = 0;
     (*list)->content = ft_strjoin(str, buf);
-
     return ret;
 }
+
+int ft_grabline(t_list **list, char *str, char **line, int eof)
+{
+    int i;
+    int copy;
+
+    i = ft_indexof(str, '\n');
+    copy = (i == 0) ? 1 : i;
+    if (!str)
+    {
+        return 0;
+        ft_lstdelone(list);
+    }
+    if (eof && ft_strlen(str) > 0)
+    {
+        *line = ft_strnew(strlen(str));
+        *line = ft_memcpy(*line, str, ft_strlen(str));
+        ft_memdel(&(*list)->content);
+        return (1);
+    }
+    else if (eof)
+    {
+        return 0;
+        ft_lstdelone(list);
+    }
+    *line = ft_strnew(i + 1);
+    *line = ft_memcpy(*line, str, copy);
+    ft_memdel(&(*list)->content);
+    (*list)->content = ft_strdup(&str[i + 1]);
+    return 1;
+}
+
+
 
 int ft_get_line(t_list **list, char **line)
 {
     char *str;
-    char i;
-
-    i = 0;
+    int eof;
 
     str = (char *)(*list)->content;
-    printf("String = ");
-    printf("%s\n", str);
-    while (str[i])
-    {
-        if (str[i] == '\n') 
-        {
-            printf("FOUND NEW LINE\n");
-            return 1;
-        }
-        i++;
+    eof = 0;
+    while ((ft_indexof(str, '\n') < 0))
+    {        
+        if (ft_read(list) < 1 && (eof = 1))
+            break ;
+        str = (char *)(*list)->content;
     }
-    *line = ft_strnew(i);
-    memcpy(*line, str, i);
-    ft_read(list);
-    ft_get_line(list, line);
+    return ft_grabline(list, str, line, eof);
 }
 
 
@@ -71,8 +93,13 @@ int get_next_line(const int fd, char **line)
     static t_list *list;
     t_list *current;
     current = ft_get_fdlist(fd, &list);
-    free(*line);
-    return ft_get_line(&current, line);
+    // if (line)
+    //     ft_memdel((void *)line);
+
+    if (fd < 0 || read(fd, NULL, 0) || !line)
+        return (-1);
+    else
+        return ft_get_line(&current, line);
 }
 
 
