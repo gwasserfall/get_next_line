@@ -62,6 +62,7 @@ int				main(void)
 		ret2 = get_next_line(fd2, &line2);
 		if (ret2 != 1 || strcmp(line2, "The Festival de Radio France et Montpellier is a summer festival of opera and other music held in Montpellier.") != 0)
 		{
+			printf("GOT [%s]\n", line2);
 			printf("-> must have returned '1' and read line #1 \"The Festival de Radio France et Montpellier is a summer festival of opera and other music held in Montpellier.\" from file %s\n", filename2);
 			errors++;
 		}

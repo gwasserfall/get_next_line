@@ -32,6 +32,8 @@ int ft_read(t_list **list)
 
     fd = (*list)->content_size;
     str = (char *)(*list)->content;
+    if (!str)
+        str = ft_strnew(0);
     ret = read(fd, buf, BUFF_SIZE);
     buf[ret] = 0;
     (*list)->content = ft_strjoin(str, buf);
@@ -66,8 +68,6 @@ int ft_grabline(t_list **list, char **line, int eof)
     free(str);
     return 1;
 }
-
-
 
 int ft_get_line(t_list **list, char **line)
 {
