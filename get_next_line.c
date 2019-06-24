@@ -38,18 +38,18 @@ int ft_read(t_list **list)
     return ret;
 }
 
-int ft_grabline(t_list **list, char *str, char **line, int eof)
+int ft_grabline(t_list **list, char **line, int eof)
 {
     int i;
     int copy;
+    char *str;
+    if (!(*list)->content)
+        return 0;
+    str = ft_strdup((char *)(*list)->content);
 
     i = ft_indexof(str, '\n');
     copy = (i == 0) ? 1 : i;
-    if (!str)
-    {
-        return 0;
-        ft_lstdelone(list);
-    }
+    
     if (eof && ft_strlen(str) > 0)
     {
         *line = ft_strnew(strlen(str));
@@ -58,14 +58,12 @@ int ft_grabline(t_list **list, char *str, char **line, int eof)
         return (1);
     }
     else if (eof)
-    {
         return 0;
-        ft_lstdelone(list);
-    }
     *line = ft_strnew(i + 1);
     *line = ft_memcpy(*line, str, copy);
     ft_memdel(&(*list)->content);
     (*list)->content = ft_strdup(&str[i + 1]);
+    free(str);
     return 1;
 }
 
@@ -84,7 +82,7 @@ int ft_get_line(t_list **list, char **line)
             break ;
         str = (char *)(*list)->content;
     }
-    return ft_grabline(list, str, line, eof);
+    return ft_grabline(list, line, eof);
 }
 
 

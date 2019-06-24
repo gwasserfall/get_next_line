@@ -34,7 +34,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/gnl.out",
+            "program": "${workspaceFolder}/test_gnl",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

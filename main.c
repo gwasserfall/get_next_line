@@ -11,12 +11,12 @@ int        main(int ac, char **av)
     size_t    count = 0;
 
     //fd = open(av[1], O_RDONLY);
-	fd = open("/goinfre/gwasserf/Desktop/42FileChecker/srcs/gnl/gnl5_2.txt", O_RDONLY);
+	fd = open("/home/gwasserf/Desktop/gnltests/tests/test2", O_RDONLY);
     line = malloc(sizeof(char*));
     printf("-------Start of File-------\n");
     while ((gnl_ret = get_next_line(fd, &line)) > 0)
     {
-        printf("l %s\n", line);
+        printf("%s\n", line);
         free(line);
         count++;
     }

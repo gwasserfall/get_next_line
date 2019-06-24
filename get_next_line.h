@@ -7,9 +7,9 @@
 # include <fcntl.h>
 # include <stdlib.h>
 # include <ctype.h>
-# include <libft.h>
+# include "libft/includes/libft.h"
 
-# define BUFF_SIZE 9999
+# define BUFF_SIZE 99
 
 int get_next_line(const int fd, char **line);
 #endif
