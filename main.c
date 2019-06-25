@@ -9,13 +9,14 @@ int        main(int ac, char **av)
     int        gnl_ret = 1;
     int        fd;
     size_t    count = 0;
-
+while (1)
+{
     //fd = open(av[1], O_RDONLY);
 	fd = open("gnl1_2.txt", O_RDONLY);
     line = malloc(sizeof(char*));
     printf("-------Start of File-------\n");
-    while (1)
-    {
+    
+    
         while ((gnl_ret = get_next_line(fd, &line)) > 0)
         {
             printf("%s\n", line);

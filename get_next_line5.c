@@ -1,5 +1,4 @@
 #include "get_next_line.h"
-#include <stdio.h>
 
 t_list  *ft_get_fdlist(int fd, t_list **alst)
 {
@@ -86,62 +85,16 @@ int ft_get_line(t_list **list, char **line)
 }
 
 
-int read_until(char **str, char **line, char c)
-{
-    char *temp;
-
-    //printf("read_until(%s, %s, %d)\n", *str, *line, c);
-
-    if ((*str)[0] == 127)
-    {
-        free(*str);
-        return (0);
-    }
-    else
-    {
-        if ((temp = strchr(*str, c)))
-            *temp = 0;
-
-        if (temp)
-        {
-            temp = ft_strdup(temp + 1);
-            *line = ft_strdup(*str);
-            free(*str);
-            *str = malloc(strlen(temp) + 1);
-            memcpy(*str, temp, strlen(temp));
-            (*str)[strlen(temp)] = 0;
-            free(temp);
-            return 1;
-        }
-        return 0;
-    }
-}
-
 int get_next_line(const int fd, char **line)
 {
     static t_list *list;
     t_list *current;
-    int ret;
-    char buf[BUFF_SIZE + 1];
-
-    if (fd < 0 || !line || read(fd, NULL, 0) < 0)
-        return -1;
-
     current = ft_get_fdlist(fd, &list);
-    if (!current->content)
-        current->content = ft_strnew(0);
-    if (*line)
-        free(*line);
 
-    while (!(ft_strchr(current->content, '\n')))
-    {
-        ret = read(fd, buf, BUFF_SIZE);
-        buf[ret] = (ret < BUFF_SIZE) ? 127 : 0;
-        if (!ret)
-            return read_until((char **)&(current->content), line, 127);
-        current->content = ft_strjoin(current->content, buf);
-    }
-    return read_until((char **)&(current->content), line, '\n');
+    if (fd < 0 || read(fd, NULL, 0) || !line)
+        return (-1);
+    else
+        return ft_get_line(&current, line);
 }
 
 
