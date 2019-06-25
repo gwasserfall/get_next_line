@@ -19,8 +19,8 @@ int				main(void)
 	char		*filename2;
 	int			errors;
 
-	filename1 = "gnl11_1.txt";
-	filename2 = "gnl11_2.txt";
+	filename1 = "./srcs/gnl/gnl11_1.txt";
+	filename2 = "./srcs/gnl/gnl11_2.txt";
 	fd1 = open(filename1, O_RDONLY);
 	fd2 = open(filename2, O_RDONLY);
 	fd3 = -1;
@@ -62,7 +62,6 @@ int				main(void)
 		ret2 = get_next_line(fd2, &line2);
 		if (ret2 != 1 || strcmp(line2, "The Festival de Radio France et Montpellier is a summer festival of opera and other music held in Montpellier.") != 0)
 		{
-			printf("GOT [%s]\n", line2);
 			printf("-> must have returned '1' and read line #1 \"The Festival de Radio France et Montpellier is a summer festival of opera and other music held in Montpellier.\" from file %s\n", filename2);
 			errors++;
 		}

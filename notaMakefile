@@ -1,7 +1,7 @@
 
 
 test:
-	gcc -o test_gnl -g gnl7_3.c get_next_line.c -I libft/includes -L libft/ -lft
+	gcc -o test_gnl -g main.c get_next_line.c -I libft/includes -L libft/ -lft
 
 all:
 	make -C libft/ fclean && make -C libft

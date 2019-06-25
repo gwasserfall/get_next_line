@@ -3,30 +3,18 @@
 #include <stdio.h>
 
 int        main(int ac, char **av)
-//int        main(void)
 {
-    char    *line;
-    int        gnl_ret = 1;
-    int        fd;
-    size_t    count = 0;
-while (1)
-{
-    //fd = open(av[1], O_RDONLY);
-	fd = open("gnl1_2.txt", O_RDONLY);
-    line = malloc(sizeof(char*));
-    printf("-------Start of File-------\n");
-    
-    
-        while ((gnl_ret = get_next_line(fd, &line)) > 0)
-        {
-            printf("%s\n", line);
-            free(line);
-            count++;
-        }
-    }
-    printf("-----------EOF-------------\n");
-    close(fd);
-    printf("%zu lines printed\n", count);
-    printf("FIN :D\n");
-    return (0);
+
+    char 	*line = NULL;
+
+    printf("%d", get_next_line(-99, NULL) == -1);
+	printf("%d", get_next_line(-1, NULL) == -1);
+	printf("%d", get_next_line(-10000, NULL) == -1);
+	printf("%d", get_next_line(1, NULL) == -1);
+	printf("%d", get_next_line(99, NULL) == -1);
+    printf("%d", get_next_line(-99, &line) == -1);
+	printf("%d", get_next_line(-1, &line) == -1);
+	printf("%d", get_next_line(-10000, &line) == -1);
+	printf("%d", get_next_line(42, &line) == -1);
+    printf("\n");
 }
