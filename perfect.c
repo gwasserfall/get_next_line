@@ -1,34 +1,21 @@
-#define BUFF_SIZE 1
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <time.h>
+
+
+
+#define BUFF_SIZE 50
 
 char file_content[] = \
-"\n"
-"\n"
-"\n"
-"\n";
-
-int my_read(char **buffer, int read_len)
-{
-  static char *ptr;
-  char *copy;
-  int count;
-  if (!ptr)
-    ptr = file_content;
-  if (!*ptr)
-    return 0;
-  
-  copy = buffer;
-  count = 0;
-  while (count < read_len)
-  {  
-    if (!*ptr)
-      return count;
-    *copy = *ptr;
-    ptr++;
-    copy++;
-    count++;
-  }
-  return count;
-}
+"\n 1"
+"\n 2 "
+"\n 3 Does this work?"
+"sfgsdfg\n";
 
 
 char *join(const char* s1, const char* s2)
@@ -46,27 +33,31 @@ char *join(const char* s1, const char* s2)
 
 int read_until(char **store, char **line, char c)
 {
-  if ((*store)[0] == 4)
-    return 0;
   char *temp;
   char *ptr;
-  if (*line)
-    free(*line);
+  char *test;
+  char *end;
+
+  if ((*store)[0] == 4)
+    return 0;
+  if ((end = strchr(*store, 4)))
+    if (!(strchr(*store, '\n')))
+      *end = '\n';
+
   temp = strdup(*store);
-  ptr = temp;
-  while(*ptr != c && *ptr)
-    ptr++;
+  ptr = strchr(temp, c);
   *ptr = 0; 
   *line = strdup(temp);
   free(*store);
   *store = strdup((ptr + 1));
   free(temp);
-  return 1;  
+  return 1;
 }
 
-int get_next_line(char **line)
+int get_next_line(int fd, char **line)
 {
   static char *store;
+  char *temp;
   char buffer[BUFF_SIZE + 2];
   int ret;
   
@@ -78,10 +69,13 @@ int get_next_line(char **line)
   
   while (!strchr(store, '\n'))
   {
-    ret = my_read(&buffer, BUFF_SIZE);
+    ret = read(fd, buffer, BUFF_SIZE);
     buffer[ret] = (ret < BUFF_SIZE) ? 4 : 0;
     buffer[ret + 1] = 0;
-    store = join(store, buffer);
+    temp = strdup(store);
+    free(store);
+    store = join(temp, buffer);
+    free(temp);
     if (!ret)
       break ;
   }
@@ -89,24 +83,20 @@ int get_next_line(char **line)
 }
 
 int main() {
+  time_t begin = time(NULL);
+
+
   
   char *line;
-  int count;
-  
-  count = 0;
-  
-  line = malloc(1);
-  line[0] = 0;
+	int fd;
 
-  while (get_next_line(&line) > 0)
-  {
-    
-    count++;
-    printf("L%d: %s\n", count, line);
-    if (count > 10)
-      break;
+  fd = open("one_big_fat_line.txt", O_RDONLY);
+
+  while (get_next_line(fd, &line) == 1)
+	{
+	    printf("%s\n", line);
   }
+  time_t end = time(NULL);
+  printf("Time elpased is %ld seconds\n", (end - begin));
 
-
-  return 0;
 }
