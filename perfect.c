@@ -9,7 +9,7 @@
 
 
 
-#define BUFF_SIZE 50
+#define BUFF_SIZE 42
 
 char file_content[] = \
 "\n 1"
@@ -31,11 +31,10 @@ char *join(const char* s1, const char* s2)
 }
 
 
-int read_until(char **store, char **line, char c)
+int fetch_line(char **store, char **line)
 {
   char *temp;
   char *ptr;
-  char *test;
   char *end;
 
   if ((*store)[0] == 4)
@@ -45,7 +44,7 @@ int read_until(char **store, char **line, char c)
       *end = '\n';
 
   temp = strdup(*store);
-  ptr = strchr(temp, c);
+  ptr = strchr(temp, '\n');
   *ptr = 0; 
   *line = strdup(temp);
   free(*store);
@@ -54,32 +53,37 @@ int read_until(char **store, char **line, char c)
   return 1;
 }
 
+void read_until_line(int fd, char **store)
+{
+  char buffer[BUFF_SIZE + 2];
+  char *temp;
+  int ret;
+  
+  while (!strchr(*store, '\n'))
+  {
+    ret = read(fd, buffer, BUFF_SIZE);
+    buffer[ret] = (ret < BUFF_SIZE) ? 4 : 0;
+    buffer[ret + 1] = 0;
+    temp = strdup(*store);
+    free(*store);
+    *store = join(temp, buffer);
+    free(temp);
+    if (!ret)
+      return ;
+  }
+}
+
 int get_next_line(int fd, char **line)
 {
   static char *store;
-  char *temp;
-  char buffer[BUFF_SIZE + 2];
-  int ret;
-  
   if (!store)
   {
     store = malloc(1);
     store[0] = 0;
   }
+  read_until_line(fd, &store);
   
-  while (!strchr(store, '\n'))
-  {
-    ret = read(fd, buffer, BUFF_SIZE);
-    buffer[ret] = (ret < BUFF_SIZE) ? 4 : 0;
-    buffer[ret + 1] = 0;
-    temp = strdup(store);
-    free(store);
-    store = join(temp, buffer);
-    free(temp);
-    if (!ret)
-      break ;
-  }
-  return read_until(&store, line, '\n');
+  return fetch_line(&store, line);
 }
 
 int main() {
