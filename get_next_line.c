@@ -1,13 +1,12 @@
 #include "get_next_line.h"
-#include <stdio.h>
 
-t_list  *ft_get_fdlist(int fd, t_list **alst)
+t_list	*ft_get_fdlist(int fd, t_list **alst)
 {
     t_list *head;
     
     if (!(*alst))
     {
-        *alst = ft_lstnew(NULL, 0);
+        *alst = ft_lstnew("\0", fd);
         (*alst)->content_size = fd;
     }
     head = *alst; 
@@ -17,64 +16,61 @@ t_list  *ft_get_fdlist(int fd, t_list **alst)
             return head;
         head = head->next;
     }
-    head = ft_lstnew(NULL, 0);
+    head = ft_lstnew("\0", 1);
     head->content_size = fd;
     ft_lstadd(alst, head);
     return (head);
 }
 
-int read_until(char **str, char **line, char c)
+int		fetch_line(char **store, char **line)
 {
-    char *temp;
+	char	*temp;
+	char	*ptr;
+	char	*end;
 
-    if ((*str)[0] == 4)
-    {
-        free(*str);
-        return (0);
-    }
-    else
-    {
-        if ((temp = ft_strchr(*str, c)))
-            *temp = 0;
-        if (temp)
-        {
-            temp = ft_strdup(temp + 1);
-            *line = ft_strdup(*str);
-            free(*str);
-            *str = malloc(ft_strlen(temp) + 1);
-            ft_memcpy(*str, temp, ft_strlen(temp));
-            (*str)[ft_strlen(temp)] = 0;
-            free(temp);
-            return 1;
-        }
-        return 0;
-    }
+	if ((*store)[0] == 4)
+		return 0;
+	if ((end = ft_strchr(*store, 4)))
+		if (!(ft_strchr(*store, '\n')))
+			*end = '\n';
+	temp = ft_strdup(*store);
+	ptr = ft_strchr(temp, '\n');
+	*ptr = 0; 
+	*line = ft_strdup(temp);
+	free(*store);
+	*store = ft_strdup((ptr + 1));
+	free(temp);
+	return 1;
 }
 
-int get_next_line(const int fd, char **line)
+void	read_until_line(int fd, char **store)
 {
-    static t_list *list;
-    t_list *current;
-    int ret;
-    char buf[BUFF_SIZE + 1];
-    char *tmp;
+	char	buffer[BUFF_SIZE + 2];
+	char	*temp;
+	int		ret;
+  
+	while (!ft_strchr(*store, '\n'))
+	{
+	ret = read(fd, buffer, BUFF_SIZE);
+	buffer[ret] = (ret < BUFF_SIZE) ? 4 : 0;
+	buffer[ret + 1] = 0;
+	temp = ft_strdup(*store);
+	free(*store);
+	*store = ft_strjoin(temp, buffer);
+	free(temp);
+	if (!ret)
+		return ;
+	}
+}
 
-    if (fd < 0 || !line || (read(fd, NULL, 0) < 0))
-        return -1;
+int		get_next_line(int fd, char **line)
+{
+	static t_list *list;
 
-    current = ft_get_fdlist(fd, &list);
-    if (!current->content)
-        current->content = ft_strnew(0);
-    while (!(ft_strchr(current->content, '\n')))
-    {
-        ret = read(fd, buf, BUFF_SIZE);
-        buf[ret] = (ret < BUFF_SIZE) ? 4 : 0;
-        tmp = ft_strdup(current->content);
-        if (!ret)
-            return read_until((char **)&(current->content), line, 4);
-        free(current->content);
-        current->content = ft_strjoin(tmp, buf);
-        free(tmp);
-    }
-    return read_until((char **)&(current->content), line, '\n');
+	t_list *current;
+	if (fd < 0 || !line || (read(fd, 0, 0) < 0))
+		return (-1);
+	current = ft_get_fdlist(fd, &list);
+	read_until_line(fd, (char **)&current->content);
+	return fetch_line((char **)&current->content, line);
 }
